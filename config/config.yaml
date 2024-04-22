@@ -1,0 +1,16 @@
+# config.yaml
+model_config:
+  embedding_size: 50
+  hidden_layers: [100, 50]
+  dropout_rate: 0.5
+  learning_rate: 0.001
+
+training_config:
+  batch_size: 64
+  num_epochs: 25
+  train_ratio: 0.8
+  validation_ratio: 0.1
+
+data_config:
+  dataset_path: "path/to/ml-100k"
+  ratings_file: "u.data"
