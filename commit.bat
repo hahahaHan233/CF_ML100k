@@ -3,7 +3,7 @@ set /p commit_msg="Enter your commit message: "
 set datetime=%date% %time%
 
 :: Add all changed files to the staging area
-git add .
+git add *
 
 :: Commit the changes with a timestamp
 git commit -m "%commit_msg% - %datetime%"
