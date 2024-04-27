@@ -23,32 +23,3 @@ class RecModel(nn.Module):
         rating_predictions = (user_embedding * item_embedding).sum(1)
         return rating_predictions
 
-if __name__ == '__main__':
-    # 假设的用户数和物品数
-    num_users = 943  # 示例值
-    num_items = 1682  # 示例值
-    embedding_dim = 100  # 嵌入向量的维度
-
-    # 创建模型实例
-    model = RecModel(num_users, num_items, embedding_dim)
-
-    # 选择优化器
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-
-    # 定义损失函数
-    loss_fn = nn.MSELoss()
-
-    # 假设有一些训练数据
-    user_indices = torch.tensor([0, 1, 2])  # 假设用户索引
-    item_indices = torch.tensor([3, 4, 5])  # 假设物品索引
-    ratings = torch.tensor([4.0, 3.0, 5.0])  # 实际评分
-
-    # 训练模型
-    model.train()
-    optimizer.zero_grad()
-    predictions = model(user_indices, item_indices)
-    loss = loss_fn(predictions, ratings)
-    loss.backward()
-    optimizer.step()
-
-    print(f"Training loss: {loss.item()}")
