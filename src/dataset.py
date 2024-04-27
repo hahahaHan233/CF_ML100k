@@ -33,7 +33,6 @@ class MovieLensDataset(Dataset):
         rating = row['rating']
         return torch.tensor(user_idx), torch.tensor(item_idx), torch.tensor(rating, dtype=torch.float)
 
-
 ### 2. 创建一个方法来生成交叉验证的数据加载器
 def load_data_for_fold(data_path, fold, batch_size=64):
     train_file = f'u{fold}.base'
@@ -48,13 +47,12 @@ def load_data_for_fold(data_path, fold, batch_size=64):
     return train_loader, test_loader
 
 
-### 3. 使用交叉验证数据加载器
+if __name__ == '__main__':
+    dataset_path = '../data/ml-100k'  # 更新为你的数据集路径
 
-dataset_path = '../data/ml-100k'  # 更新为你的数据集路径
+    # 使用第一折的数据进行示例
+    train_loader, test_loader = load_data_for_fold(dataset_path, fold=1)
 
-# 使用第一折的数据进行示例
-train_loader, test_loader = load_data_for_fold(dataset_path, fold=1)
-
-for user_indices, item_indices, ratings in train_loader:
-    # 在这里进行你的模型训练逻辑
-    pass
+    for user_indices, item_indices, ratings in train_loader:
+        # 在这里进行你的模型训练逻辑
+        pass

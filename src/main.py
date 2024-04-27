@@ -1,21 +1,20 @@
-import yaml
+import torch
 
-def load_config(config_path):
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
-    return config
-def save_config(config, config_path):
-    with open(config_path, 'w') as file:
-        yaml.dump(config, file)
+import utils
+import model
+import dataset
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+utils.setup_seed(42)
 
-# 使用配置文件
-config_path = '../config/config.yaml'
-config = load_config(config_path)
-print(config)
+if __name__ == '__main__':
+    config_path = '../config/config.yaml'
+    config = utils.load_config(config_path)
+    print(config)
 
-# 修改配置
-config['model_config']['embedding_size'] = 100
+    # 读取配置项
+    embedding_dim = config['data_config']['embedding_dim']
+    batch_size = config['training_config']['batch_size']
+    learning_rate = config['model_config']['learning_rate']
 
-# 保存新的配置
-save_config(config, config_path)
+    #save_config(config, config_path)
