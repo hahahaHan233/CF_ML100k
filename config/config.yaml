@@ -10,5 +10,7 @@ training_config:
   num_epochs: 25
 
 data_config:
-  train_path: "../data/ml-100k/u1.base"
-  test_path: "../data/ml-100k/u1.test"
+#  train_path: "../data/ml-100k/u1.base"
+#  test_path: "../data/ml-100k/u1.test"
+  train_path: "../data/ml-100k/ua.base"
+  test_path: "../data/ml-100k/ua.test"
