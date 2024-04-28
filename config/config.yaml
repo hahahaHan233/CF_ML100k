@@ -4,13 +4,14 @@ model_config:
   hidden_layers: [100, 50]
   dropout_rate: 0.5
   learning_rate: 0.001
+  weight_decay: 0.00001
 
 training_config:
   batch_size: 64
-  num_epochs: 25
+  num_epochs: 30
 
 data_config:
-#  train_path: "../data/ml-100k/u1.base"
-#  test_path: "../data/ml-100k/u1.test"
-  train_path: "../data/ml-100k/ua.base"
-  test_path: "../data/ml-100k/ua.test"
+  train_path: "../data/ml-100k/u1.base"
+  test_path: "../data/ml-100k/u1.test"
+#  train_path: "../data/ml-100k/ua.base"
+#  test_path: "../data/ml-100k/ua.test"
