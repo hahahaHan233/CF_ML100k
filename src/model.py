@@ -3,8 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+
 class RecModel(nn.Module):
-    def __init__(self, num_users, num_items, embedding_dim, dropout_rate=0.5):
+    def __init__(self, num_users, num_items, embedding_dim, dropout_rate=0.5, global_mean=2.5):
         super(RecModel, self).__init__()
         self.user_embeddings = nn.Embedding(num_users, embedding_dim)
         self.item_embeddings = nn.Embedding(num_items, embedding_dim)
@@ -14,11 +15,23 @@ class RecModel(nn.Module):
         # self.user_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=True)
         # self.item_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=True)
 
-        # todo:SVD++
+        self.user_embeddings = nn.Embedding(num_users, embedding_dim)
+        self.item_embeddings = nn.Embedding(num_items, embedding_dim)
+        self.global_bias = nn.Parameter(torch.tensor([global_mean]))
+        self.user_biases = nn.Embedding(num_users, 1)
+        self.item_biases = nn.Embedding(num_items, 1)
+
+        # # Initialize
+        self.user_embeddings.weight.data.uniform_(0, 0.05)
+        self.item_embeddings.weight.data.uniform_(0, 0.05)
+        self.user_biases.weight.data.uniform_(-0.01, 0.01)
+        self.item_biases.weight.data.uniform_(-0.01, 0.01)
 
         self.dropout = nn.Dropout(p=dropout_rate)
+
     def forward(self, user_indices, item_indices):
         # 获取用户和物品的嵌入向量
+
         user_embedding = self.user_embeddings(user_indices)
         item_embedding = self.item_embeddings(item_indices)
 
@@ -30,13 +43,18 @@ class RecModel(nn.Module):
         # user_embedding = self.dropout(F.relu(user_embedding))
         # item_embedding = self.dropout(F.relu(item_embedding))
 
-        user_embedding = self.dropout(F.leaky_relu(user_embedding))
-        item_embedding = self.dropout(F.leaky_relu(item_embedding))
+        # user_embedding = self.dropout(F.leaky_relu(user_embedding))
+        # item_embedding = self.dropout(F.leaky_relu(item_embedding))
+        #
+        # # remap to [1,5]
+        # rating_predictions = (user_embedding * item_embedding).sum(1)
+        # rating_predictions = torch.sigmoid(rating_predictions)
+        # rating_predictions = rating_predictions * 4 + 1
+        # return rating_predictions
 
-        rating_predictions = (user_embedding * item_embedding).sum(1)
+        predictions = (user_embedding * item_embedding).sum(1)
+        predictions = predictions + self.global_bias + self.user_biases(user_indices) + self.item_biases(item_indices)
 
-        # remap to [1,5]
-        rating_predictions = torch.sigmoid(rating_predictions)
-        rating_predictions = rating_predictions * 4 + 1
-        return rating_predictions
+        predictions = torch.sigmoid(predictions) * 4 + 1
 
+        return predictions

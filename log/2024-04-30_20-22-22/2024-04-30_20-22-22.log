@@ -1,0 +1,23 @@
+Log dir:../log/2024-04-30_20-22-22
+Device:cuda
+model_config:
+  embedding_size: 128
+  dropout_rate: 0.5
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+training_config:
+  batch_size: 64
+  num_epochs: 30
+data_config:
+  train_path: ../data/ml-100k/u1.base
+  test_path: ../data/ml-100k/u1.test
+
+------------------------------------------
+global_bias: 4.0000 B
+user_embeddings.weight: 482816.0000 B
+item_embeddings.weight: 844800.0000 B
+user_biases.weight: 3772.0000 B
+item_biases.weight: 6600.0000 B
+------------------------------------------
+Total trainable parameters: 1.2760 MB 
+Before training RMSE:1.7368695128247065

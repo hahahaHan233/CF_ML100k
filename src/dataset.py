@@ -12,13 +12,13 @@ class MovieLensDataset(Dataset):
         self.ratings_df = pd.read_csv(data_path, sep='\t', header=None,
                                       names=['user_id', 'item_id', 'rating', 'timestamp'], usecols=[0, 1, 2])
 
-        # 生成用户和物品的索引映射
+        # Reindex
         self.user_ids = self.ratings_df['user_id'].unique()
         self.item_ids = self.ratings_df['item_id'].unique()
         self.user_to_index = {user_id: idx for idx, user_id in enumerate(self.user_ids)}
         self.item_to_index = {item_id: idx for idx, item_id in enumerate(self.item_ids)}
 
-        #todo: 加入user/item base rate
+        self.global_mean = self.ratings_df['rating'].mean()
 
     def __len__(self):
         return len(self.ratings_df)

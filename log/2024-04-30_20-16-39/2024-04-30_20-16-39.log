@@ -1,0 +1,33 @@
+Log dir:../log/2024-04-30_20-16-39
+Device:cuda
+model_config:
+  embedding_size: 128
+  dropout_rate: 0.5
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+training_config:
+  batch_size: 64
+  num_epochs: 30
+data_config:
+  train_path: ../data/ml-100k/u1.base
+  test_path: ../data/ml-100k/u1.test
+
+------------------------------------------
+global_bias: 4.0000 B
+user_embeddings.weight: 482816.0000 B
+item_embeddings.weight: 844800.0000 B
+user_biases.weight: 3772.0000 B
+item_biases.weight: 6600.0000 B
+------------------------------------------
+Total trainable parameters: 1.2760 MB 
+Before training RMSE:1.7368695128247065
+Epoch 1/30,	 Train Loss: 1.8945540362358093,	 Eval Loss: 1.4380224156684387,	 RMSE: 1.182063257887676
+Epoch 2/30,	 Train Loss: 0.9178763053655624,	 Eval Loss: 1.4275319788593073,	 RMSE: 1.1810893278249845
+Validation loss decreased.  Saving model ...
+Epoch 3/30,	 Train Loss: 0.8215504324197769,	 Eval Loss: 1.4710256001248527,	 RMSE: 1.198552541890979
+Epoch 4/30,	 Train Loss: 0.7335381248712539,	 Eval Loss: 1.4994396283603704,	 RMSE: 1.2100866543526807
+Epoch 5/30,	 Train Loss: 0.6300258683204651,	 Eval Loss: 1.533763881308583,	 RMSE: 1.2237089501554899
+Epoch 6/30,	 Train Loss: 0.5162772769927979,	 Eval Loss: 1.550331552759908,	 RMSE: 1.2304603346553014
+Epoch 7/30,	 Train Loss: 0.4032543464064598,	 Eval Loss: 1.583697679515083,	 RMSE: 1.243444944024019
+Stopping training.
+Minimum RMSE:1.1810893278249845

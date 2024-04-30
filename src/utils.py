@@ -7,7 +7,7 @@ import os
 import sys
 
 class Logger(object):
-    def __init__(self, filename=None):
+    def __init__(self,log_directory, filename=None):
         # If no filename provided, use the current date
         date_str = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         if filename != None:
@@ -15,7 +15,7 @@ class Logger(object):
         else:
             filename = f'{date_str}.log'
 
-        log_directory = '../log'
+        log_directory = log_directory
         if os.path.exists(log_directory) == False:
             os.mkdir(log_directory)
 
@@ -63,6 +63,46 @@ def print_model_size(model):
             param_size = parameter.numel()
             param_bytes = param_size * parameter.element_size()
             total_bytes += param_bytes
-            print(f"{name}: {param_bytes / (1024 * 1024)} MB")
+            print(f"{name}: {param_bytes :.4f} B")
     print('------------------------------------------')
     print(f"Total trainable parameters: {total_bytes / (1024 * 1024):.4f} MB ")
+
+import torch
+
+class EarlyStopping:
+    def __init__(self, patience=5, verbose=False, delta=0, path='checkpoint.pth'):
+        """
+        Args:
+            patience (int): 等待次数
+            verbose (bool): 如果为True，在提高时打印一条消息
+            delta (float): 为了被认为是改善，监测的数量至少需要改变的最小量
+            path (str): 模型保存路径
+        """
+        self.patience = patience
+        self.verbose = verbose
+        self.delta = delta
+        self.path = path
+        self.best_score = None
+        self.epochs_no_improve = 0
+        self.early_stop = False
+
+    def __call__(self, eval_loss, model):
+        score = -eval_loss
+        if self.best_score is None:
+            self.best_score = score
+            self.save_checkpoint(model)
+        elif score < self.best_score + self.delta:
+            self.epochs_no_improve += 1
+            if self.epochs_no_improve >= self.patience:
+                self.early_stop = True
+        else:
+            self.best_score = score
+            self.epochs_no_improve = 0
+            self.save_checkpoint(model)
+            if self.verbose:
+                print(f'Validation loss decreased.  Saving model ...')
+
+    def save_checkpoint(self, model):
+        '''Saves model when validation loss decrease.'''
+        torch.save(model.state_dict(), self.path)
+

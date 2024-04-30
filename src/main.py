@@ -8,23 +8,24 @@ import os
 import numpy as np
 import sys
 from datetime import datetime
+import yaml
 
 import utils
 import model
 import dataset
 
 current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-print(current_time)
+print(f'Log time:{current_time}')
 log_dir = os.path.join('../log/', current_time)
 #log_dir = os.path.join('../log/', 'test')
+sys.stdout = utils.Logger(log_directory=log_dir, filename=None)
+print(f'Log dir:{log_dir}')
 writer = SummaryWriter(log_dir=log_dir)
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-sys.stdout = utils.Logger(filename=None)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 utils.setup_seed(42)
-print(device)
-
+print(f'Device:{device}')
 
 def train(model, train_loader, optimizer, criterion):
     model.train()
@@ -67,7 +68,7 @@ if __name__ == '__main__':
     # Load config .yaml
     config_path = '../config/config.yaml'
     config = utils.load_config(config_path)
-    print(config)
+    print(yaml.dump(config, sort_keys=False, allow_unicode=True, default_flow_style=False))
 
     embedding_dim = config['model_config']['embedding_size']
     batch_size = config['training_config']['batch_size']
@@ -92,10 +93,11 @@ if __name__ == '__main__':
 
     # ===============================================================
     # Prepare for training
-    model = model.RecModel(num_users, num_items, embedding_dim, dropout_rate=dropout_rate)
+    model = model.RecModel(num_users, num_items, embedding_dim, dropout_rate=dropout_rate,
+                           global_mean=train_dataset.global_mean)
     optimizer = optim.Adam(model.parameters(), learning_rate, weight_decay=weight_decay)
     criterion = nn.MSELoss()
-
+    early_stopper = utils.EarlyStopping(patience=5, verbose=True, path=os.path.join(log_dir,'model_best.pth'))
     utils.print_model_size(model)
 
     u_embeds_pre = model.user_embeddings.weight.data.cpu().numpy()
@@ -120,7 +122,16 @@ if __name__ == '__main__':
         RMSE_list.append(RMSE)
 
         print(f'Epoch {epoch + 1}/{epochs},\t Train Loss: {train_loss},\t Eval Loss: {eval_loss},\t RMSE: {RMSE}')
-        break
+
+        writer.add_histogram('Model Weights/User Embeddings', model.user_embeddings.weight, epoch)
+        writer.add_histogram('Model Weights/Item Embeddings', model.item_embeddings.weight, epoch)
+        writer.add_histogram('Model Weights/User Biases', model.user_biases.weight, epoch)
+        writer.add_histogram('Model Weights/Item Biases', model.item_biases.weight, epoch)
+
+        early_stopper(eval_loss, model)
+        if early_stopper.early_stop:
+            print("Stopping training.")
+            break
 
     print(f'Minimum RMSE:{np.min(RMSE_list)}')
     plt.plot(train_losses, label='Training loss')
@@ -137,8 +148,5 @@ if __name__ == '__main__':
     i_embeds_post = model.item_embeddings.weight.data.cpu().numpy()
     writer.add_embedding(np.vstack((u_embeds_post, i_embeds_post)), global_step=0,
                          tag='Embeddings Post-training')
-
-    # todo: log中创建文件夹，存储loss图像，日志，模型，embedding可视化
-
 
     writer.close()
