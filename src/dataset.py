@@ -8,11 +8,6 @@ class MovieLensDataset(Dataset):
     """MovieLens 100K Dataset for PyTorch with support for k-fold cross-validation"""
 
     def __init__(self, data_path):
-        """
-        Args:
-            data_path (string): 路径到 'ml-100k' 文件夹.
-            dataset_part (string): 用于指定使用哪部分数据，例如 'u1.base', 'u1.test', etc.
-        """
         self.data_path = data_path
         self.ratings_df = pd.read_csv(data_path, sep='\t', header=None,
                                       names=['user_id', 'item_id', 'rating', 'timestamp'], usecols=[0, 1, 2])
@@ -22,6 +17,8 @@ class MovieLensDataset(Dataset):
         self.item_ids = self.ratings_df['item_id'].unique()
         self.user_to_index = {user_id: idx for idx, user_id in enumerate(self.user_ids)}
         self.item_to_index = {item_id: idx for idx, item_id in enumerate(self.item_ids)}
+
+        #todo: 加入user/item base rate
 
     def __len__(self):
         return len(self.ratings_df)

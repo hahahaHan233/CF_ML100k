@@ -1,0 +1,9 @@
+cuda
+{'model_config': {'embedding_size': 128, 'hidden_layers': [100, 50], 'dropout_rate': 0.5, 'learning_rate': 0.001, 'weight_decay': 1e-05}, 'training_config': {'batch_size': 64, 'num_epochs': 30}, 'data_config': {'train_path': '../data/ml-100k/u1.base', 'test_path': '../data/ml-100k/u1.test'}}
+------------------------------------------
+user_embeddings.weight: 0.46044921875 MB
+item_embeddings.weight: 0.8056640625 MB
+------------------------------------------
+Total trainable parameters: 1.2661 MB 
+Epoch 1/30,	 Train Loss: 1.2448278787136078,	 Eval Loss: 1.3812036683765083,	 RMSE: 1.1632486343143844
+Epoch 2/30,	 Train Loss: 0.9839386407852173,	 Eval Loss: 1.3596760209756917,	 RMSE: 1.1539590560508086

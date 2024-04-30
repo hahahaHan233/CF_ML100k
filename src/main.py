@@ -1,21 +1,30 @@
 import torch
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import os
 import numpy as np
 import sys
+from datetime import datetime
 
 import utils
 import model
 import dataset
+
+current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+print(current_time)
+log_dir = os.path.join('../log/', current_time)
+#log_dir = os.path.join('../log/', 'test')
+writer = SummaryWriter(log_dir=log_dir)
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 sys.stdout = utils.Logger(filename=None)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 utils.setup_seed(42)
 print(device)
+
 
 def train(model, train_loader, optimizer, criterion):
     model.train()
@@ -83,17 +92,26 @@ if __name__ == '__main__':
 
     # ===============================================================
     # Prepare for training
-    model = model.RecModel(num_users, num_items, embedding_dim,dropout_rate=dropout_rate)
+    model = model.RecModel(num_users, num_items, embedding_dim, dropout_rate=dropout_rate)
     optimizer = optim.Adam(model.parameters(), learning_rate, weight_decay=weight_decay)
     criterion = nn.MSELoss()
 
     utils.print_model_size(model)
+
+    u_embeds_pre = model.user_embeddings.weight.data.cpu().numpy()
+    i_embeds_pre = model.item_embeddings.weight.data.cpu().numpy()
+    writer.add_embedding(np.vstack((u_embeds_pre, i_embeds_pre)), global_step=0,
+                         tag='Embeddings Pre-training')
+    # writer.add_embedding(u_embeds_pre, global_step=0, tag='User Embeddings Pre-training')
+    # writer.add_embedding(i_embeds_pre, global_step=0, tag='Item Embeddings Pre-training')
 
     # ===============================================================
     # Training
     train_losses, eval_losses = [], []
     RMSE_list = []
 
+    eval_loss, RMSE = evaluate(model, test_loader, criterion)
+    print(f'Before training RMSE:{RMSE}')
     for epoch in range(epochs):
         train_loss = train(model, train_loader, optimizer, criterion)
         eval_loss, RMSE = evaluate(model, test_loader, criterion)
@@ -102,15 +120,25 @@ if __name__ == '__main__':
         RMSE_list.append(RMSE)
 
         print(f'Epoch {epoch + 1}/{epochs},\t Train Loss: {train_loss},\t Eval Loss: {eval_loss},\t RMSE: {RMSE}')
+        break
 
     print(f'Minimum RMSE:{np.min(RMSE_list)}')
     plt.plot(train_losses, label='Training loss')
     plt.plot(eval_losses, label='Evaluation loss')
-    plt.plot(RMSE_list, label='Testing results of RMSE')
+    plt.plot(RMSE_list, label='Testing of RMSE')
     plt.legend()
     plt.title('Loss over epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
+    plt.savefig(log_dir + '/curves.png')
     plt.show()
 
+    u_embeds_post = model.user_embeddings.weight.data.cpu().numpy()
+    i_embeds_post = model.item_embeddings.weight.data.cpu().numpy()
+    writer.add_embedding(np.vstack((u_embeds_post, i_embeds_post)), global_step=0,
+                         tag='Embeddings Post-training')
+
     # todo: log中创建文件夹，存储loss图像，日志，模型，embedding可视化
+
+
+    writer.close()

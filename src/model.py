@@ -14,6 +14,8 @@ class RecModel(nn.Module):
         # self.user_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=True)
         # self.item_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=True)
 
+        # todo:SVD++
+
         self.dropout = nn.Dropout(p=dropout_rate)
     def forward(self, user_indices, item_indices):
         # 获取用户和物品的嵌入向量
@@ -25,10 +27,12 @@ class RecModel(nn.Module):
         # item_embedding = self.item_linear(item_embedding)
 
         # 应用 Dropout
-        user_embedding = self.dropout(F.relu(user_embedding))
-        item_embedding = self.dropout(F.relu(item_embedding))
+        # user_embedding = self.dropout(F.relu(user_embedding))
+        # item_embedding = self.dropout(F.relu(item_embedding))
 
-        # 计算点积
+        user_embedding = self.dropout(F.leaky_relu(user_embedding))
+        item_embedding = self.dropout(F.leaky_relu(item_embedding))
+
         rating_predictions = (user_embedding * item_embedding).sum(1)
 
         # remap to [1,5]
