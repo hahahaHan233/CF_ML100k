@@ -63,9 +63,9 @@ def print_model_size(model):
             param_size = parameter.numel()
             param_bytes = param_size * parameter.element_size()
             total_bytes += param_bytes
-            print(f"{name}: {param_bytes :.4f} B")
+            print(f"{name}: {param_bytes / (1024 * 1024):.4f} MB")
     print('------------------------------------------')
-    print(f"Total trainable parameters: {total_bytes / (1024 * 1024):.4f} MB ")
+    print(f"Total trainable parameters: {total_bytes / (1024 * 1024):.4f} MB")
 
 import torch
 

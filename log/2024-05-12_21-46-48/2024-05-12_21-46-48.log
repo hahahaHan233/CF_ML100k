@@ -1,0 +1,25 @@
+Log dir:../log/2024-05-12_21-46-48
+Device:cuda
+model_config:
+  embedding_size: 128
+  dropout_rate: 0.5
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+training_config:
+  batch_size: 64
+  num_epochs: 30
+data_config:
+  train_path: ../data/ml-100k/u1.base
+  test_path: ../data/ml-100k/u1.test
+  num_items: 1682
+  num_users: 943
+
+torch.Size([944, 128])
+------------------------------------------
+global_bias: 4.0000 B
+user_embeddings.weight: 483328.0000 B
+item_embeddings.weight: 861696.0000 B
+user_biases.weight: 3776.0000 B
+item_biases.weight: 6732.0000 B
+------------------------------------------
+Total trainable parameters: 1.2927 MB 

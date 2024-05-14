@@ -12,5 +12,7 @@ training_config:
 data_config:
   train_path: "../data/ml-100k/u1.base"
   test_path: "../data/ml-100k/u1.test"
+  num_items: 1682
+  num_users: 943
 #  train_path: "../data/ml-100k/ua.base"
 #  test_path: "../data/ml-100k/ua.test"

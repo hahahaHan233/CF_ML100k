@@ -3,8 +3,9 @@
 ## TODO
 - [x] 训练/测试样本划分， 协同过滤是否支持用户短期滑动窗口记录以及能否根据用户的变化的历史记录进行动态的推荐
 - [x] 加入对于embedding的可视化
-- [ ] 加入使用SVD++的计算方式
-
+- [ ] 加入使用SVD++的计算方式，补充baseline
+- [ ] linear layer 加入layernorm 参照双塔模型
+- [ ] 补充用户的特征信息，可以参照回归模型使用
 
 ## Movielens 指标榜单
 - https://paperswithcode.com/dataset/movielens
