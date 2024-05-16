@@ -1,0 +1,30 @@
+Log dir:../log/2024-05-17_07-39-20
+Device:cuda
+model_config:
+  embedding_size: 128
+  dropout_rate: 0.5
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+training_config:
+  batch_size: 64
+  num_epochs: 30
+data_config:
+  train_path: ../data/ml-100k/u1.base
+  test_path: ../data/ml-100k/u1.test
+  num_items: 1682
+  num_users: 943
+
+Our model
+------------------------------------------
+user_embeddings.weight: 0.4609 MB
+item_embeddings.weight: 0.8218 MB
+user_biases.weight: 0.0036 MB
+item_biases.weight: 0.0064 MB
+user_linear.weight: 0.0625 MB
+item_linear.weight: 0.0625 MB
+user_feature_linear.weight: 0.4604 MB
+item_feature_linear.weight: 0.8213 MB
+------------------------------------------
+Total trainable parameters: 2.6995 MB
+mat1 and mat2 shapes cannot be multiplied (64x23 and 943x128)
+Error occurs, No graph saved

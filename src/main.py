@@ -92,19 +92,21 @@ if __name__ == '__main__':
 
     # ===============================================================
     # Prepare for training
-    # model = model.RecModel(num_users, num_items, embedding_dim, dropout_rate=dropout_rate,
+    model = model.RecModel(num_users, num_items, embedding_dim, dropout_rate=dropout_rate)
+
+    # model = model.MatrixFactorization(num_users, num_items, embedding_dim, dropout_rate=dropout_rate,
     #                        global_mean=train_dataset.global_mean)
-    model = model.MatrixFactorization(num_users, num_items, embedding_dim, dropout_rate=dropout_rate,
-                           global_mean=train_dataset.global_mean)
     optimizer = optim.Adam(model.parameters(), learning_rate, weight_decay=weight_decay)
     criterion = nn.MSELoss()
-    early_stopper = utils.EarlyStopping(patience=5, verbose=True, path=os.path.join(log_dir,'model_best.pth'))
+    early_stopper = utils.EarlyStopping(patience=5, verbose=False, path=os.path.join(log_dir,'model_best.pth'))
     utils.print_model_size(model)
 
     # ===============================================================
     # calculate the graph in TensorBoard basing on example
-    user_indices = torch.LongTensor([1, 2, 3])
-    item_indices = torch.LongTensor([1, 2, 3])
+    # user_indices = torch.LongTensor([1, 2, 3])
+    # item_indices = torch.LongTensor([1, 2, 3])
+    user_indices = torch.LongTensor(torch.randint(1, num_users+1, (batch_size,)))
+    item_indices = torch.LongTensor(torch.randint(1, num_items+1, (batch_size,)))
     writer.add_graph(model, (user_indices, item_indices))
 
     u_embeds_pre = model.user_embeddings.weight.data.cpu().numpy()

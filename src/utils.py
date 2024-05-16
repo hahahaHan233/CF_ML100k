@@ -69,6 +69,44 @@ def print_model_size(model):
 
 import torch
 
+# class EarlyStopping:
+#     def __init__(self, patience=5, verbose=False, delta=0, path='checkpoint.pth'):
+#         """
+#         Args:
+#             patience (int): 等待次数
+#             verbose (bool): 如果为True，在提高时打印一条消息
+#             delta (float): 为了被认为是改善，监测的数量至少需要改变的最小量
+#             path (str): 模型保存路径
+#         """
+#         self.patience = patience
+#         self.verbose = verbose
+#         self.delta = delta
+#         self.path = path
+#         self.best_score = None
+#         self.epochs_no_improve = 0
+#         self.early_stop = False
+#
+#     def __call__(self, eval_loss, model):
+#         score = -eval_loss
+#         if self.best_score is None:
+#             self.best_score = score
+#             self.save_checkpoint(model)
+#         elif score < self.best_score + self.delta:
+#             self.epochs_no_improve += 1
+#             if self.epochs_no_improve >= self.patience:
+#                 self.early_stop = True
+#         else:
+#             self.best_score = score
+#             self.epochs_no_improve = 0
+#             self.save_checkpoint(model)
+#             if self.verbose:
+#                 print(f'Validation loss decreased.  Saving model ...')
+#
+#     def save_checkpoint(self, model):
+#         '''Saves model when validation loss decrease.'''
+#         torch.save(model.state_dict(), self.path)
+
+
 class EarlyStopping:
     def __init__(self, patience=5, verbose=False, delta=0, path='checkpoint.pth'):
         """
@@ -85,24 +123,27 @@ class EarlyStopping:
         self.best_score = None
         self.epochs_no_improve = 0
         self.early_stop = False
+        self.best_model_params = None
 
     def __call__(self, eval_loss, model):
         score = -eval_loss
         if self.best_score is None:
             self.best_score = score
-            self.save_checkpoint(model)
+            self.best_model_params = model.state_dict()
         elif score < self.best_score + self.delta:
             self.epochs_no_improve += 1
             if self.epochs_no_improve >= self.patience:
                 self.early_stop = True
+                self.save_checkpoint()
         else:
             self.best_score = score
             self.epochs_no_improve = 0
-            self.save_checkpoint(model)
+            self.best_model_params = model.state_dict()
             if self.verbose:
-                print(f'Validation loss decreased.  Saving model ...')
+                print(f'Validation loss decreased. Updating best model parameters...')
 
-    def save_checkpoint(self, model):
-        '''Saves model when validation loss decrease.'''
-        torch.save(model.state_dict(), self.path)
-
+    def save_checkpoint(self):
+        '''Saves model when training stops with the best parameters.'''
+        torch.save(self.best_model_params, self.path)
+        if self.verbose:
+            print(f'Saving model to {self.path} with the best parameters...')

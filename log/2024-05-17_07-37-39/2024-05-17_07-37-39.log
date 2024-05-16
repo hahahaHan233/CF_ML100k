@@ -1,0 +1,17 @@
+Log dir:../log/2024-05-17_07-37-39
+Device:cuda
+model_config:
+  embedding_size: 128
+  dropout_rate: 0.5
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+training_config:
+  batch_size: 64
+  num_epochs: 30
+data_config:
+  train_path: ../data/ml-100k/u1.base
+  test_path: ../data/ml-100k/u1.test
+  num_items: 1682
+  num_users: 943
+
+Our model

@@ -1,0 +1,32 @@
+Log dir:../log/test
+Device:cuda
+model_config:
+  embedding_size: 128
+  dropout_rate: 0.5
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+training_config:
+  batch_size: 64
+  num_epochs: 30
+data_config:
+  train_path: ../data/ml-100k/u1.base
+  test_path: ../data/ml-100k/u1.test
+  num_items: 1682
+  num_users: 943
+
+Our model
+------------------------------------------
+user_embeddings.weight: 0.4609 MB
+item_embeddings.weight: 0.8218 MB
+user_biases.weight: 0.0036 MB
+item_biases.weight: 0.0064 MB
+user_heads_transform.0.weight: 0.0156 MB
+user_heads_transform.0.bias: 0.0002 MB
+user_heads_transform.1.weight: 0.0156 MB
+user_heads_transform.1.bias: 0.0002 MB
+item_heads_transform.0.weight: 0.0156 MB
+item_heads_transform.0.bias: 0.0002 MB
+item_heads_transform.1.weight: 0.0156 MB
+item_heads_transform.1.bias: 0.0002 MB
+------------------------------------------
+Total trainable parameters: 1.3562 MB
