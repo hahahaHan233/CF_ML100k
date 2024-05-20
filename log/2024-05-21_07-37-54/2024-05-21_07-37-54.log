@@ -1,0 +1,48 @@
+Log dir:../log/2024-05-21_07-37-54
+Device:cuda
+model_config:
+  embedding_size: 128
+  dropout_rate: 0.5
+  learning_rate: 0.001
+  weight_decay: 1.0e-05
+training_config:
+  batch_size: 64
+  num_epochs: 30
+data_config:
+  train_path: ../data/ml-100k/u1.base
+  test_path: ../data/ml-100k/u1.test
+  num_items: 1682
+  num_users: 943
+
+NMF model: NonNegativeMatrixFactorization
+------------------------------------------
+global_bias: 0.0000 MB
+user_embeddings.weight: 0.4609 MB
+item_embeddings.weight: 0.8218 MB
+user_biases.weight: 0.0036 MB
+item_biases.weight: 0.0064 MB
+------------------------------------------
+Total trainable parameters: 1.2927 MB
+Before training RMSE:1.4758885706285838
+Epoch 1/30,	 Train Loss: 1.1318414716720582,	 Eval Loss: 0.9857416184375081,	 RMSE: 0.9788636805204302
+Validation loss decreased. Updating best model parameters...
+Epoch 2/30,	 Train Loss: 0.9028772670269013,	 Eval Loss: 0.9493157307560832,	 RMSE: 0.9610761918645315
+Validation loss decreased. Updating best model parameters...
+Epoch 3/30,	 Train Loss: 0.8556369444131852,	 Eval Loss: 0.9196676376719064,	 RMSE: 0.9458018781107296
+Validation loss decreased. Updating best model parameters...
+Epoch 4/30,	 Train Loss: 0.7939155971050262,	 Eval Loss: 0.895926688425838,	 RMSE: 0.9328599305551294
+Validation loss decreased. Updating best model parameters...
+Epoch 5/30,	 Train Loss: 0.7246689491033554,	 Eval Loss: 0.8820081983511441,	 RMSE: 0.9251929159725277
+Validation loss decreased. Updating best model parameters...
+Epoch 6/30,	 Train Loss: 0.6543133493185044,	 Eval Loss: 0.8760263913165266,	 RMSE: 0.9218524181981744
+Validation loss decreased. Updating best model parameters...
+Epoch 7/30,	 Train Loss: 0.5875985275268555,	 Eval Loss: 0.8755485084110175,	 RMSE: 0.9213059131517086
+Validation loss decreased. Updating best model parameters...
+Epoch 8/30,	 Train Loss: 0.525813777077198,	 Eval Loss: 0.8805678071686254,	 RMSE: 0.9242639623455511
+Epoch 9/30,	 Train Loss: 0.4690178824543953,	 Eval Loss: 0.8868304352029063,	 RMSE: 0.927633136883396
+Epoch 10/30,	 Train Loss: 0.41753498561382296,	 Eval Loss: 0.8979644517357738,	 RMSE: 0.9334786720868453
+Epoch 11/30,	 Train Loss: 0.3701325546503067,	 Eval Loss: 0.9089782296087795,	 RMSE: 0.9394731433777522
+Epoch 12/30,	 Train Loss: 0.3270926300525665,	 Eval Loss: 0.9200323654439884,	 RMSE: 0.9450272311866809
+Saving model to ../log/2024-05-21_07-37-54\model_best.pth with the best parameters...
+Stopping training.
+Minimum RMSE:0.9213059131517086

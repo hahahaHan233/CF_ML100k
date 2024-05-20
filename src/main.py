@@ -6,6 +6,10 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+
+torch.manual_seed(42)
+np.random.seed(42)
+
 import sys
 from datetime import datetime
 import yaml
@@ -92,36 +96,36 @@ if __name__ == '__main__':
 
     # ===============================================================
     # Prepare for training
+
+    # Proposed model
     model = model.RecModel(num_users, num_items, embedding_dim, dropout_rate=dropout_rate)
 
-    # model = model.MatrixFactorization(num_users, num_items, embedding_dim, dropout_rate=dropout_rate,
-    #                        global_mean=train_dataset.global_mean)
+    # baseline: MF
+    #model = model.MatrixFactorization(num_users, num_items, embedding_dim)
+
+    # baseline: NMF
+    # model = model.NonNegativeMatrixFactorization(num_users, num_items, embedding_dim)
+
     optimizer = optim.Adam(model.parameters(), learning_rate, weight_decay=weight_decay)
     criterion = nn.MSELoss()
-    early_stopper = utils.EarlyStopping(patience=5, verbose=False, path=os.path.join(log_dir,'model_best.pth'))
+    early_stopper = utils.EarlyStopping(patience=5, verbose=True, path=os.path.join(log_dir,'model_best.pth'),writer=writer)
     utils.print_model_size(model)
 
     # ===============================================================
     # calculate the graph in TensorBoard basing on example
-    # user_indices = torch.LongTensor([1, 2, 3])
-    # item_indices = torch.LongTensor([1, 2, 3])
     user_indices = torch.LongTensor(torch.randint(1, num_users+1, (batch_size,)))
     item_indices = torch.LongTensor(torch.randint(1, num_items+1, (batch_size,)))
     writer.add_graph(model, (user_indices, item_indices))
-
-    u_embeds_pre = model.user_embeddings.weight.data.cpu().numpy()
-    i_embeds_pre = model.item_embeddings.weight.data.cpu().numpy()
-    writer.add_embedding(np.vstack((u_embeds_pre, i_embeds_pre)), global_step=0,
-                         tag='Embeddings Pre-training')
-    # writer.add_embedding(u_embeds_pre, global_step=0, tag='User Embeddings Pre-training')
-    # writer.add_embedding(i_embeds_pre, global_step=0, tag='Item Embeddings Pre-training')
 
     # ===============================================================
     # Training
     train_losses, eval_losses = [], []
     RMSE_list = []
 
+    # Evaluate before training
     eval_loss, RMSE = evaluate(model, test_loader, criterion)
+    early_stopper(RMSE, model, 0)
+
     print(f'Before training RMSE:{RMSE}')
     for epoch in range(epochs):
         train_loss = train(model, train_loader, optimizer, criterion)
@@ -132,30 +136,21 @@ if __name__ == '__main__':
 
         print(f'Epoch {epoch + 1}/{epochs},\t Train Loss: {train_loss},\t Eval Loss: {eval_loss},\t RMSE: {RMSE}')
 
-        writer.add_histogram('Model Weights/User Embeddings', model.user_embeddings.weight, epoch)
-        writer.add_histogram('Model Weights/Item Embeddings', model.item_embeddings.weight, epoch)
-        writer.add_histogram('Model Weights/User Biases', model.user_biases.weight, epoch)
-        writer.add_histogram('Model Weights/Item Biases', model.item_biases.weight, epoch)
-
-        early_stopper(eval_loss, model)
+        early_stopper(RMSE, model, epoch)
         if early_stopper.early_stop:
             print("Stopping training.")
             break
 
     print(f'Minimum RMSE:{np.min(RMSE_list)}')
     plt.plot(train_losses, label='Training loss')
-    plt.plot(eval_losses, label='Evaluation loss')
-    plt.plot(RMSE_list, label='Testing of RMSE')
+    plt.plot(eval_losses, label='Testing loss')
+    plt.plot(RMSE_list, label='Testing RMSE')
     plt.legend()
     plt.title('Loss over epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.savefig(log_dir + '/curves.png')
+    plt.savefig(log_dir + '/curves.pdf')
     plt.show()
 
-    u_embeds_post = model.user_embeddings.weight.data.cpu().numpy()
-    i_embeds_post = model.item_embeddings.weight.data.cpu().numpy()
-    writer.add_embedding(np.vstack((u_embeds_post, i_embeds_post)), global_step=0,
-                         tag='Embeddings Post-training')
-
-    writer.close()
+    if writer!=None:
+        writer.close()

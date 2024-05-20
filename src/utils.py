@@ -108,33 +108,41 @@ import torch
 
 
 class EarlyStopping:
-    def __init__(self, patience=5, verbose=False, delta=0, path='checkpoint.pth'):
+    def __init__(self, patience=5, verbose=False, delta=0, path='checkpoint.pth', writer=None):
         """
         Args:
             patience (int): 等待次数
             verbose (bool): 如果为True，在提高时打印一条消息
             delta (float): 为了被认为是改善，监测的数量至少需要改变的最小量
             path (str): 模型保存路径
+            writer (SummaryWriter, optional): TensorBoard SummaryWriter 对象
         """
         self.patience = patience
         self.verbose = verbose
         self.delta = delta
         self.path = path
+        self.writer = writer
         self.best_score = None
         self.epochs_no_improve = 0
         self.early_stop = False
         self.best_model_params = None
+        self.pre_training_logged = False  # 标记是否已经记录了训练前的嵌入
 
-    def __call__(self, eval_loss, model):
-        score = -eval_loss
+    def __call__(self, metric, model, epoch):
+        score = -metric
+        self.log_weights(model, epoch)
         if self.best_score is None:
             self.best_score = score
             self.best_model_params = model.state_dict()
+            if not self.pre_training_logged:
+                self.log_embeddings(model, epoch, tag='Embeddings Pre-training')
+                self.pre_training_logged = True
         elif score < self.best_score + self.delta:
             self.epochs_no_improve += 1
             if self.epochs_no_improve >= self.patience:
                 self.early_stop = True
                 self.save_checkpoint()
+                self.log_embeddings(model, epoch, tag='Embeddings Post-training')
         else:
             self.best_score = score
             self.epochs_no_improve = 0
@@ -147,3 +155,18 @@ class EarlyStopping:
         torch.save(self.best_model_params, self.path)
         if self.verbose:
             print(f'Saving model to {self.path} with the best parameters...')
+
+    def log_embeddings(self, model, epoch, tag):
+        '''Logs embeddings and model weights to TensorBoard if writer is provided.'''
+        if self.writer:
+            u_embeds = model.user_embeddings.weight.data.cpu().numpy()
+            i_embeds = model.item_embeddings.weight.data.cpu().numpy()
+            self.writer.add_embedding(np.vstack((u_embeds, i_embeds)), global_step=0,
+                                 tag=tag)
+
+    def log_weights(self, model, epoch):
+        if self.writer:
+            self.writer.add_histogram('Model Weights/User Embeddings', model.user_embeddings.weight, epoch)
+            self.writer.add_histogram('Model Weights/Item Embeddings', model.item_embeddings.weight, epoch)
+            self.writer.add_histogram('Model Weights/User Biases', model.user_biases.weight, epoch)
+            self.writer.add_histogram('Model Weights/Item Biases', model.item_biases.weight, epoch)

@@ -58,19 +58,12 @@ class RecModel(nn.Module):
         self.user_embeddings = nn.Embedding(num_users, embedding_dim)
         self.item_embeddings = nn.Embedding(num_items, embedding_dim)
 
-        self.user_embeddings.weight.data.uniform_(0, 0.05)
-        self.item_embeddings.weight.data.uniform_(0, 0.05)
-
-        # self.user_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=True)
-        # self.item_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=True)
-
-        self.user_embeddings = nn.Embedding(num_users, embedding_dim)
-        self.item_embeddings = nn.Embedding(num_items, embedding_dim)
         self.user_biases = nn.Embedding(num_users, 1)
         self.item_biases = nn.Embedding(num_items, 1)
 
         self.dropout = nn.Dropout(p=dropout_rate)
 
+        '''
         # ================================================
         # Multi-head max dot scores
         self.num_heads = int(num_heads)
@@ -78,9 +71,7 @@ class RecModel(nn.Module):
         # Same In-Out dimension
         self.user_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=False)
         self.item_linear = nn.Linear(in_features=embedding_dim, out_features=embedding_dim, bias=False)
-
-        self.initialize()
-
+        '''
         # ================================================
         # Auxiliary information
         self.user_feature = preprocess_user_data('../data/ml-100k/u.user')  # n_user x feature_dim
@@ -92,6 +83,8 @@ class RecModel(nn.Module):
                                              bias=False)
         self.item_feature_linear = nn.Linear(item_feature_dim, embedding_dim,
                                              bias=False)
+
+        self.initialize()
 
     def initialize(self):
         # # Initialize
@@ -111,10 +104,6 @@ class RecModel(nn.Module):
         item_embedding = self.item_embeddings(item_indices) + F.relu(
             self.item_feature_linear(self.item_feature[item_indices - 1]))  # batch x emb_dim
 
-        # user_embedding = self.user_embeddings(user_indices) + self.user_feature_linear(
-        #     self.user_feature[user_indices])  # batch x emb_dim
-        # item_embedding = self.item_embeddings(item_indices) + self.item_feature_linear(
-        #     self.item_feature[item_indices])  # batch x emb_dim
 
         '''
         # Multi-head max scores
@@ -195,3 +184,50 @@ class MatrixFactorization(nn.Module):
         # predictions = torch.sigmoid(predictions) * 4 + 1
 
         return predictions  # batch
+
+
+class NonNegativeMatrixFactorization(nn.Module):
+    def __init__(self, num_users, num_items, embedding_dim, dropout_rate=0.5, global_mean=2.5):
+        super(NonNegativeMatrixFactorization, self).__init__()
+        print('NMF model: NonNegativeMatrixFactorization')
+
+        # index space [1,num_users], [1,num_items]
+        num_users += 1
+        num_items += 1
+
+        self.user_embeddings = nn.Embedding(num_users, embedding_dim)
+        self.item_embeddings = nn.Embedding(num_items, embedding_dim)
+
+        # Initialize with non-negative values
+        self.user_embeddings.weight.data.uniform_(0, 0.05)
+        self.item_embeddings.weight.data.uniform_(0, 0.05)
+
+        self.global_bias = nn.Parameter(torch.tensor([global_mean]))
+        self.user_biases = nn.Embedding(num_users, 1)
+        self.item_biases = nn.Embedding(num_items, 1)
+
+        # Initialize biases
+        self.user_biases.weight.data.uniform_(0, 0.01)
+        self.item_biases.weight.data.uniform_(0, 0.01)
+
+        self.dropout = nn.Dropout(p=dropout_rate)
+
+    def forward(self, user_indices, item_indices):
+        user_embedding = self.user_embeddings(user_indices)  # batch x emb_dim
+        item_embedding = self.item_embeddings(item_indices)  # batch x emb_dim
+
+        # Ensure embeddings are non-negative (NMF constraint)
+        user_embedding = torch.clamp(user_embedding, min=0)
+        item_embedding = torch.clamp(item_embedding, min=0)
+
+        # Dot product for recommendation scores
+        predictions = (user_embedding * item_embedding).sum(1)  # batch
+        predictions = predictions + self.global_bias + self.user_biases(user_indices).squeeze() + self.item_biases(item_indices).squeeze()
+
+        return predictions  # batch
+
+    def apply_non_negativity(self):
+        # Ensure non-negativity of embeddings after each gradient update
+        with torch.no_grad():
+            self.user_embeddings.weight.data.clamp_(min=0)
+            self.item_embeddings.weight.data.clamp_(min=0)
