@@ -9,7 +9,6 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
 
 def preprocess_user_data(user_data_path):
-    # 读取用户数据
     columns = ['user_id', 'age', 'gender', 'occupation', 'zip_code']
     user_data = pd.read_csv(user_data_path, sep='|', header=None, names=columns, encoding='latin-1')
     user_data = user_data.sort_values(by='user_id').reset_index(drop=True)
@@ -20,12 +19,17 @@ def preprocess_user_data(user_data_path):
 
     occupation_encoder = OneHotEncoder()
     occupation_encoded = occupation_encoder.fit_transform(user_data[['occupation']]).toarray()
-
-    # 将所有特征组合成一个输入张量
     user_features = user_data[['age', 'gender']].values
     user_features = torch.tensor(user_features, dtype=torch.float32)
     occupation_features = torch.tensor(occupation_encoded, dtype=torch.float32)
     user_features = torch.cat([user_features, occupation_features], dim=1)
+
+    # occupation_encoder = LabelEncoder()
+    # user_data['occupation'] = occupation_encoder.fit_transform(user_data['occupation'])
+    # user_features = user_data[['age', 'gender']].values
+    # user_features = torch.tensor(user_features, dtype=torch.float32)
+    # occupation_features = torch.tensor(user_data['occupation'].values, dtype=torch.float32).unsqueeze(1)
+    # user_features = torch.cat([user_features, occupation_features], dim=1)
 
     return user_features
 

@@ -1,30 +1,32 @@
 # CF_ML100k
 
-## TODO
-- [x] 训练/测试样本划分， 协同过滤是否支持用户短期滑动窗口记录以及能否根据用户的变化的历史记录进行动态的推荐
-- [x] 加入对于embedding的可视化
-- [x] 加入使用SVD++的计算方式，补充baseline
-- [ ] linear layer 加入layernorm 参照双塔模型
-- [ ] 补充用户的特征信息，可以参照回归模型使用
-- [ ] 根据用户的群体以及电影genre 可视化embedding
 
-## Movielens 指标榜单
-- https://paperswithcode.com/dataset/movielens
-- https://paperswithcode.com/sota/collaborative-filtering-on-movielens-100k
-- https://paperswithcode.com/sota/collaborative-filtering-on-movielens-1m?metric=NDCG
+## Description
 
-![Rank](./Fig/Rank.png)
-## Baseline 仓库
+This project implements collaborative filtering using the ML-100K dataset. The goal is to develop, train, and evaluate a recommendation system using various collaborative filtering techniques.
 
+## Directory Details
 
-## Non-negative matrix factorization 算法流程
+- **config**: Contains configuration files.
+  - `config.yaml`: Configuration file for the project.
 
-- 目标：将user-item矩阵进行矩阵分解成user embedding矩阵和item embedding矩阵，从而提取user/item embedding
-![NMF](./Fig/NMF.png)
+- **data**: Contains the dataset.
+  - `ml-100k`: Directory where the ML-100K dataset is stored.
 
-- user-item矩阵可以表示为user-item 频次矩阵，也可以表示为user-item 评分矩阵
-- non-negative 约束embedding的点积为正数
+- **Fig**: Directory for storing figures and plots generated during the analysis.
 
-## 可视化
+- **log**: Directory for storing log files.
 
-- 选取用户的高评分item，与自身embedding 进行比较
+- **paper**: Directory for storing research papers and related documents.
+
+- **scripts**: Directory for storing various utility scripts.
+
+- **src**: Source code for the project.
+  - `dataset.py`: Handles data loading and preprocessing.
+  - `main.py`: Main script to run the project.
+  - `model.py`: Defines the collaborative filtering models.
+  - `SVD.ipynb`: Jupyter notebook for Singular Value Decomposition (SVD) analysis.
+  - `utils.py`: Utility functions used throughout the project.
+  - `visualize.py`: Functions for visualizing data and results.
+
+- **ENGN8535_2024_Group_Project.pdf**: Project requirements.
